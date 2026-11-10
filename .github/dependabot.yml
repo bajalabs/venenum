@@ -18,6 +18,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Stay on the Node LTS line: Node 25+ images no longer ship corepack, which the build uses for pnpm.
+      - dependency-name: node
+        update-types: [version-update:semver-major]
   - package-ecosystem: docker-compose
     directory: /
     schedule:
