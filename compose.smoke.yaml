@@ -1,0 +1,9 @@
+# Overlay for the end-to-end smoke test (CI, or locally): `docker compose -f compose.yaml -f compose.smoke.yaml up`.
+# It lets venenum fetch from the fixture server that scripts/smoke.ts runs on the host, with a key you generate.
+services:
+  venenum:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      VENENUM_HMAC_KEYS: smoke:${SMOKE_KEY:?set SMOKE_KEY to 64 hex characters (openssl rand -hex 32)}
+      VENENUM_FETCH_ORIGINS: http://host.docker.internal:${SMOKE_FIXTURE_PORT:-8765}

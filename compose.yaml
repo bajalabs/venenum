@@ -1,0 +1,33 @@
+# venenum and ClamAV on one private network. Only venenum's port is published, on 127.0.0.1 unless VENENUM_BIND says
+# otherwise; clamd (3310) is reachable from venenum only. Settings come from .env (see .env.example and README.md).
+name: venenum
+
+services:
+  clamav:
+    image: clamav/clamav:1.5.4-debian
+    restart: unless-stopped
+    # The official image (the Debian variant runs on amd64 and arm64) runs freshclam for signature updates and clamd;
+    # its own health check passes once clamd answers. The first start downloads the signature database.
+    volumes:
+      - clamav-db:/var/lib/clamav
+
+  venenum:
+    build: .
+    image: venenum:local
+    restart: unless-stopped
+    depends_on:
+      clamav:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PORT: "3330"
+      CLAMD_HOST: clamav
+      CLAMD_PORT: "3310"
+      CLAMD_SOCKET: ""
+    ports:
+      - "${VENENUM_BIND:-127.0.0.1}:${VENENUM_PORT:-3330}:3330"
+
+volumes:
+  clamav-db:

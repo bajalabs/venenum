@@ -1,0 +1,12 @@
+.git
+.github
+node_modules
+coverage
+docs
+examples
+scripts
+test
+.env
+.env.*
+*.md
+compose*.yaml

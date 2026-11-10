@@ -1,0 +1,26 @@
+name: Bug report
+description: Something in venenum does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: For a security problem, do not open an issue; report it privately (see SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The request, the response (status and body) you expected, and what you got. Remove keys and signatures.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Settings (without keys), the command or client code, and the relevant log lines.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versions
+      description: venenum release or commit, ClamAV version (from /v1/version), how you run it (compose, image, Node).

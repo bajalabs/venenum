@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, type check, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm type-check
+      - run: pnpm test # includes the Python client against the service (python3 is on the runner)
+
+  image:
+    name: "Build and smoke test: EICAR is infected, a clean file is clean"
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: A throwaway signing key for this run
+        run: |
+          key="$(openssl rand -hex 32)"
+          echo "::add-mask::$key"
+          echo "SMOKE_KEY=$key" >> "$GITHUB_ENV"
+      - name: Build venenum and start it with ClamAV (the first start downloads the signatures)
+        run: docker compose -f compose.yaml -f compose.smoke.yaml up -d --build --wait --wait-timeout 1500
+      - name: Smoke test through both routes
+        env:
+          VENENUM_CALLER: smoke
+          SMOKE_FIXTURE_HOST: host.docker.internal
+        run: VENENUM_KEY="$SMOKE_KEY" node scripts/smoke.ts
+      - name: Logs on failure
+        if: failure()
+        run: docker compose -f compose.yaml -f compose.smoke.yaml logs --tail 200
+      - name: Stop
+        if: always()
+        run: docker compose -f compose.yaml -f compose.smoke.yaml down -v

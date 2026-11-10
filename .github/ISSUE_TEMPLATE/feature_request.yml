@@ -1,0 +1,16 @@
+name: Feature request
+description: Propose a change to the service.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do and why venenum makes it hard today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+      description: How it could work, including any change to the API, the signing or the settings.

@@ -1,0 +1,28 @@
+{
+  "name": "venenum",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A small HTTP service in front of ClamAV: signed requests scan an object fetched from an allowed origin, or bytes sent in the body.",
+  "license": "MIT",
+  "author": "Baja Labs",
+  "repository": { "type": "git", "url": "git+https://github.com/bajalabs/venenum.git" },
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "packageManager": "pnpm@10.26.0",
+  "scripts": {
+    "start": "node src/main.ts",
+    "lint": "biome lint .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run --maxWorkers=2",
+    "smoke": "node scripts/smoke.ts"
+  },
+  "dependencies": {
+    "fastify": "5.12.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.6",
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}
