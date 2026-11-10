@@ -1,11 +1,11 @@
 # venenum: the Node service only. ClamAV runs beside it (compose.yaml uses the official clamav/clamav image).
-FROM node:24.22.2-alpine3.24 AS deps
+FROM node:26.13.0-alpine3.24 AS deps
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
-FROM node:24.22.2-alpine3.24
+FROM node:26.13.0-alpine3.24
 ENV NODE_ENV=production \
     PORT=3330
 WORKDIR /app
